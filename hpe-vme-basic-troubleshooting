@@ -1,0 +1,21 @@
+# =====================================================================
+# HPE VME 8.1.2 TROUBLESHOOTING COMMAND REFERENCE
+# Format: Plain Text / Notepad-optimized tabular list
+# =====================================================================
+
+CATEGORY            COMMAND                         DESCRIPTION
+---------------------------------------------------------------------
+Virtualization      sudo virsh list --all           List all hosted VMs/domains
+Virtualization      sudo virsh start <domain>       Power on a stopped VM
+Virtualization      ps aux | grep qemu              Check active QEMU processes
+Services            sudo morpheus-ctl status        Check VME/Morpheus services
+Services            sudo morpheus-ctl stop          Stop all appliance services
+Services            sudo morpheus-ctl start         Start all appliance services
+Services            sudo morpheus-ctl reconfigure   Reconfigure the manager app
+Services            morpheus-ctl tail morpheus-ui   Tail live UI startup/error logs
+Networking          ip a                            Show IP addresses & interfaces
+Networking          ip route                        Display routing table
+Networking          netplan try                     Validate & apply netplan config
+Cluster Storage     pcs status                      Check cluster node status
+Cluster Storage     pcs node standby <node>         Place cluster node into standby
+Reset/Clean         /opt/hpe-vm/scripts/reset_host.sh Wipes broken local configurations
