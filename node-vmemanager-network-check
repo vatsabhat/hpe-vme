@@ -1,0 +1,38 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) & VME MANAGER - NETWORK TROUBLESHOOTING CHEATSHEET
+========================================================================================================================
+
+1. CENTRAL VME MANAGER (APPLIANCE-LEVEL DIAGNOSTICS)
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+IP & Gateway Valid.    ip a                                            Confirm local appliance interface IP assignments
+IP & Gateway Valid.    ip route                                        Inspect active default gateways and interface tables
+DNS & URL Mapping      hostname -f                                     Verify current Fully Qualified Domain Name (FQDN)
+DNS & URL Mapping      nslookup $(hostname -f)                         Ensure DNS maps matching record targets (CRITICAL)
+DNS & URL Mapping      nslookup <Appliance_IP_Address>                 Test reverse DNS lookup pointers for the system
+
+Morpheus Service Stack sudo morpheus-ctl status                        Verify if central rabbitmq, ui, and DB rings are UP
+Morpheus Service Stack sudo morpheus-ctl restart morpheus-ui           Restart only the web console rendering pipeline
+Morpheus Service Stack sudo morpheus-ctl reconfigure                   Force rebuild application network templates
+
+Live Payload Streams   tail -f /var/log/morpheus/morpheus-ui/current   Monitor active incoming agent API connections
+Live Payload Streams   tail -f /var/log/morpheus/nginx/error.log       Check reverse proxy dropouts or failed UI bindings
+
+------------------------------------------------------------------------------------------------------------------------
+2. VME NODES / HVM HOST NETWORK VERIFICATION
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Link Verification      sudo ip link set <interface_name> up            Wake dropped physical NICs (e.g., post-host-reboot)
+Link Verification      sudo netplan get                                Fetch live active netplan profile block parameters
+Link Verification      sudo netplan try                                Test adjustments with an automated 120s safety rollback
+
+Inter-Node Routing     nc -zv <Manager_IP> 443                         Test if node can reach central VME Manager API port
+Inter-Node Routing     nc -zv <Target_Node_IP> 22                      Verify node-to-node private SSH key sync loops
+Inter-Node Routing     ping -M do -s 8972 <Storage_IP>                 Test Jumbo Frames path capability (MTU 9000 check)
+
+Plugin & Fabric Logs   tail -f /var/log/hvm/network-plugin.log         Stream v9+ decoupled Open vSwitch plug-in bindings
+Plugin & Fabric Logs   tail -f /var/log/libvirt/libvirtd.log          Track libvirt virtual function (VF) and tap leaks
+Wipe & Start Over      sudo /opt/hpe-vm/scripts/reset_host.sh          Purge a broken, misconfigured node net-layer
+========================================================================================================================
