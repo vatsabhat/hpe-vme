@@ -1,0 +1,26 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 9.0.0 - V9 UPGRADE & STORAGE EXPANSION TROUBLESHOOTING
+========================================================================================================================
+
+1. PLATFORM UPGRADE PATH VALIDATION (Ubuntu 24.04 OS & Agent Steps)
+------------------------------------------------------------------------------------------------------------------------
+ACTION                  COMMAND / PROCEDURE
+Pre-upgrade OS Check    cat /etc/os-release                            Verify host OS is Ubuntu 24.04 BEFORE running v9
+Agent Execution Fix     mount -o remount,exec /tmp                     Fix 'permission denied' agent upgrade script flags
+Manual Agent Trigger    Via UI: Infrastructure -> Clusters -> Hosts -> [Select Host] -> ACTIONS -> Upgrade Agent
+Offline Script Push     sudo ./hpe-vme-agent-upgrade-script.sh         Run unique host-level shell installer directly
+
+2. STORAGE LUN EXPANSION & GFS2 CAPACITY RESIZING
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY                COMMAND                                        DESCRIPTION
+Block Layer Rescan      sudo iscsiadm -m node -R                       Force active host session block device capacity rescan
+Multipath Extension     sudo multipathd resize map <multipath_device>  Instruct device-mapper to absorb array changes
+GFS2 File System Grow   sudo gfs2_grow /mnt/<gfs2_mount_point>         Safely expand the active clustered cluster layout
+Capacity Verification   df -hT | grep gfs2                             Verify OS and cluster register the new storage limit
+
+3. POST-UPGRADE POSTURE & QUORUM TROUBLESHOOTING (Layout 1.3 Flags)
+------------------------------------------------------------------------------------------------------------------------
+Cluster Realignment     sudo hvm-cli cluster status                    Query the native v9 engine for sync locks
+Cluster Realignment     sudo hvm-cli host list                         Identify false FENCED or ghost Offline states
+Storage Path Validation  ls -la /var/lib/libvirt/qemu/nvram/            Ensure guest Secure Boot NVRAM paths sync across GFS2
+------------------------------------------------------------------------------------------------------------------------
