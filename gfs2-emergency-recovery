@@ -1,0 +1,40 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 9.0.0 - EMERGENCY GFS2 RECOVERY & DLM LOCK CLEARING
+========================================================================================================================
+
+1. CRITICAL RECOVERY SEQUENCE (Run commands exactly in this order)
+------------------------------------------------------------------------------------------------------------------------
+STEP 1: Identify the Frozen Mount Point and Blocked Operations
+        sudo cat /proc/mounts | grep gfs2
+        sudo cat /proc/cluster/services                  # Check if DLM/GFS2 kernel layers are responsive
+
+STEP 2: Pinpoint the Node Holding the Stale or Blocked Lock
+        sudo dlm_tool ls                                 # List active lockspaces and blocked lock counts
+        sudo dlm_tool deadlocks <lockspace_name>         # Expose the exact Node ID causing the lock conflict
+
+STEP 3: Forcefully Evict a Dead Node / Clear the Lock Space (Run on the surviving/healthy nodes)
+        sudo dlm_tool leave <lockspace_name>             # Force current host node to exit a stuck lockspace
+        - OR -
+        sudo gfs2_tool withdraw /mnt/<gfs2_mount_point>  # Forcefully withdraw the failing node from GFS2 safely
+
+STEP 4: Recover and Clean the GFS2 File System Journals (Run ONLY after unmounting or withdrawing)
+        sudo gfs2_tool journals /mnt/<gfs2_mount_point>  # Check for unrecovered journals
+        sudo fsck.gfs2 -y /dev/mapper/<multipath_device> # Run ONLY if the volume is unmounted on ALL nodes!
+
+------------------------------------------------------------------------------------------------------------------------
+2. DETAILED TROUBLESHOOTING ACTIONS & COMMAND REFERENCE
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+DLM Low-Level Flags    sudo dlm_tool lock_dump <lockspace_name>        Dump all blocked, granted, and orphaned cluster locks
+DLM Low-Level Flags    cat /proc/cluster/dlm_debug                     Expose low-level kernel debugger output for locks
+DLM Low-Level Flags    sudo dlm_tool status                            Verify current DLM operating parameters for GFS2
+
+Forced Unmounting      sudo umount -l /mnt/<gfs2_mount_point>           Lazy unmount: Detaches the filesystem instantly,
+                                                                       clearing terminal hangs while cleaning up leaks
+Forced Unmounting      sudo umount -f /mnt/<gfs2_mount_point>           Force unmount a stuck or blocked GFS2 filesystem
+
+Post-Expansion Fix     sudo blockdev --getsize64 /dev/mapper/<disk>    Verify OS layer sees the post-expansion block capacity
+Post-Expansion Fix     sudo multipathd resize map <multipath_device>  Force device-mapper to absorb array changes on ALL nodes
+Post-Expansion Fix     sudo gfs2_grow /mnt/<gfs2_mount_point>         Safely re-attempt file system expansion after clearing locks
+========================================================================================================================
