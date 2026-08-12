@@ -1,0 +1,58 @@
+====================================================================================================
+           HPE VM ESSENTIALS (VME) ISOLATED LIFECYCLE MANAGEMENT CHEATSHEET
+====================================================================================================
+
+CATEGORY               | COMMAND                                         | OPERATIONAL DESCRIPTION
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager Backup/Restore | sudo morpheus-db-dump -d /tmp/                  | Dumps operational state tracking database to file.
+Manager Backup/Restore | sudo morpheus-db-restore -f <FILE_PATH>         | Imports saved relational data to active engine.
+Manager Backup/Restore | sudo morpheus-ctl reconfigure                   | Re-aligns internal configurations and mappings.
+Manager Backup/Restore | sudo tar -cvzf secrets.tar.gz /etc/morpheus/    | Packages cluster cryptographic keys & definitions.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager DB Maintenance | sudo morpheus-ctl status mysql                  | Verifies if database service layer is healthy.
+Manager DB Maintenance | sudo morpheus-ctl start mysql                   | Forces relational database initialization.
+Manager DB Maintenance | sudo morpheus-ctl stop mysql                    | Halts relational backend database daemon smoothly.
+Manager DB Maintenance | sudo grep "password" /etc/morpheus/morpheus.rb | Extracts root database credentials manually.
+Manager DB Maintenance | mysql -u morpheus -p<PWD> morpheus < <FILE>     | Forcefully injects backup via native SQL client.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager Maintenance    | sudo morpheus-ctl stop morpheus-ui              | Halts manager browser and UI service plane.
+Manager Maintenance    | sudo morpheus-ctl start morpheus-ui             | Starts manager browser and UI service plane.
+Manager Maintenance    | sudo morpheus-ctl tail morpheus-ui              | Follows console UI launch logs in real time.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager Upgrades       | sudo dpkg -i <BASE_VME_FILE>.deb                | Installs downloaded base engine update package.
+Manager Upgrades       | sudo dpkg -i <SUPPLEMENTAL_FILE>.deb            | Applies air-gapped system update dependencies.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Host OS Updates        | pcs node standby <NODE_NAME>                    | Evacuates VM computing loads prior to updates.
+Host OS Updates        | sudo apt update && sudo apt upgrade             | Refreshes system baseline packages on local host.
+Host OS Updates        | pcs node unstandby <NODE_NAME>                  | Re-admits updated compute node into cluster.
+====================================================================================================
+
+  Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "SELECT * FROM DATABASECHANGELOG ORDER BY orderexecuted DESC LIMIT 5;" | Verifies newest applied database versions and tracking entries.
+Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "SELECT * FROM DATABASECHANGELOGLOCK;"                                  | Audits for database update migration structural deadlocks.
+Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "DELETE FROM DATABASECHANGELOGLOCK;"                                  | Clears stuck migration lock handles to permit system boot-up.
+==========================================================================================================================================================================================================
+
+  Manager Backup/Restore | sudo morpheus-db-dump -d /tmp/                  | Dumps operational state tracking database to file.
+Manager Backup/Restore | sudo morpheus-db-restore -f <FILE_PATH>         | Imports saved relational data to active engine.
+Manager Backup/Restore | sudo morpheus-ctl reconfigure                   | Re-aligns internal configurations and mappings.
+Manager Backup/Restore | sudo tar -cvzf secrets.tar.gz /etc/morpheus/    | Packages cluster cryptographic keys & definitions.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager DB Maintenance | sudo morpheus-ctl status mysql                  | Verifies if database service layer is healthy.
+Manager DB Maintenance | sudo morpheus-ctl start mysql                   | Forces relational database initialization.
+Manager DB Maintenance | sudo morpheus-ctl stop mysql                    | Halts relational backend database daemon smoothly.
+Manager DB Maintenance | sudo grep "password" /etc/morpheus/morpheus.rb | Extracts root database credentials manually.
+Manager DB Maintenance | mysql -u morpheus -p<PWD> morpheus < <FILE>     | Forcefully injects backup via native SQL client.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "..."     | Queries DATABASECHANGELOG table for last migrations.
+Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "..."     | Queries DATABASECHANGELOGLOCK to check deadlocks.
+Schema Validation      | mysql -u morpheus -p<PWD> morpheus -e "..."     | Deletes active migration deadlocks to boot system.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager Maintenance    | sudo morpheus-ctl stop morpheus-ui              | Halts manager browser and UI service plane.
+Manager Maintenance    | sudo morpheus-ctl start morpheus-ui             | Starts manager browser and UI service plane.
+Manager Maintenance    | sudo morpheus-ctl tail morpheus-ui              | Follows console UI launch logs in real time.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Manager Upgrades       | sudo dpkg -i <BASE_VME_FILE>.deb                | Installs downloaded base engine update package.
+Manager Upgrades       | sudo dpkg -i <SUPPLEMENTAL_FILE>.deb            | Applies air-gapped system update dependencies.
+-----------------------+-------------------------------------------------+-------------------------------------------------
+Host OS Updates        | sudo apt update && sudo apt upgrade             | Refreshes system baseline packages on local host.
+====================================================================================================
