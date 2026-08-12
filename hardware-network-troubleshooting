@@ -1,0 +1,26 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - HARDWARE & NETWORK FABRIC TROUBLESHOOTING
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Hardware & Sensors     sudo dmidecode -t system | grep -i product      Verify physical server hardware model & generation
+Hardware & Sensors     sudo ipmitool sdr elist                         Query hardware sensors (Fans, Power Supplies, Temps)
+Hardware & Sensors     sudo ipmitool sel list                          Dump system event logs for hardware components
+Hardware & Sensors     sudo lshw -short                                List all system hardware components in summary
+Hardware & Sensors     lsblk -o NAME,SIZE,TYPE,FSTYPE,MODEL            List physical drives, sizes, and layout paths
+
+Physical NIC & Link    sudo ethtool <interface_name>                   Check physical link speed, duplex, and link status
+Physical NIC & Link    sudo ethtool -S <interface_name>                Show detailed hardware error counters (crc, drops)
+Physical NIC & Link    cat /proc/net/bonding/bond0                     Inspect active/backup state and links for NIC bonds
+Physical NIC & Link    sudo biosdevname -d                             Map OS interface names to physical PCIe slots
+
+Fabric & Performance  ping -M do -s 8972 <target_node_ip>              Validate path support for MTU 9000 (Jumbo Frames)
+Fabric & Performance  sudo corosync-cfgtool -s                         Verify health and packet response of Corosync rings
+Fabric & Performance  sudo iperf3 -c <target_node_ip>                 Test raw TCP network throughput between cluster nodes
+Fabric & Performance  sudo tcpdump -i any arp -n                        Monitor live ARP traffic to detect IP conflicts
+
+System Hardware Logs   sudo dmesg -T | grep -E "fail|error|hardware"    Filter kernel ring buffer for hardware/PCIe failures
+System Hardware Logs   sudo journalctl -k --priority=3 --no-pager      View high-priority kernel alerts (MCE errors, RAM faults)
+System Hardware Logs   tail -f /var/log/syslog | grep -i "link down"   Watch for intermittent or flapping network interfaces
+------------------------------------------------------------------------------------------------------------------------
