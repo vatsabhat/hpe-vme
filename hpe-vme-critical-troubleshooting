@@ -1,0 +1,25 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - RECOVERY: FENCING (STONITH) & STORAGE LOCK (DLM/GFS2)
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Fencing Recovery       sudo pcs stonith history                        Identify which node triggered fencing and why
+Fencing Recovery       sudo pcs fence <node_name>                      Manually trigger fence to clear a stuck state
+Fencing Recovery       sudo pcs stonith cleanup                        Clear the history and tracking flags of fence events
+Fencing Recovery       sudo pcs resource refresh                       Force cluster to re-read all hardware status
+Fencing Recovery       sudo pcs cluster auth                           Re-authenticate cluster communications on nodes
+Fencing Recovery       sudo pcs cluster start <node_name>              Manually restart the cluster stack on fixed node
+
+DLM Lock Diagnostics   sudo dlm_tool ls                                List active lockspaces and lock counts per volume
+DLM Lock Diagnostics   sudo dlm_tool status                            Check local node registration status with DLM kernel
+DLM Lock Diagnostics   sudo dlm_tool lock_dump <lockspace_name>        Dump all blocked, granted, and orphaned cluster locks
+DLM Lock Diagnostics   cat /proc/cluster/dlm_debug                     Expose low-level kernel debugger output for locks
+DLM Lock Diagnostics   sudo gfs2_edit -p sb /dev/<vg>/<lv>             Inspect superblock of a locked GFS2 volume
+
+GFS2 File System Fix   mount | grep gfs2                               Check if GFS2 filesystem is currently mounted
+GFS2 File System Fix   sudo umount -f /mnt/<gfs2_mount>                Force unmount a stuck or blocked GFS2 filesystem
+GFS2 File System Fix   sudo fsck.gfs2 -y /dev/<vg>/<lv>                Run non-interactive filesystem repair (UMNT FIRST)
+GFS2 File System Fix   sudo gfs2_tool withdraw /mnt/<gfs2_mount>       Forcefully withdraw a node from GFS2 safely
+GFS2 File System Fix   sudo dlm_tool leave <lockspace_name>            Force current host node to exit a stuck lockspace
+------------------------------------------------------------------------------------------------------------------------
