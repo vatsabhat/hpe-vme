@@ -1,0 +1,64 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - MANAGEMENT & COMPUTE NETWORK OPERATIONS
+========================================================================================================================
+
+1. MANAGEMENT & COMPUTE BRIDGING TEMPLATE (Save as /etc/netplan/01-netcfg.yaml)
+------------------------------------------------------------------------------------------------------------------------
+network:
+  version: 2
+  renderer: OpenvSwitch
+  ethernets:
+    eno1:                       # Physical Mgmt Port 1
+      dhcp4: no
+    eno2:                       # Physical Mgmt Port 2
+      dhcp4: no
+    ens3f0:                     # Physical Compute Port 1
+      dhcp4: no
+    ens3f1:                     # Physical Compute Port 2
+      dhcp4: no
+  bonds:
+    bond-mgmt:                  # Management LACP Bond
+      interfaces: [eno1, eno2]
+      parameters:
+        mode: 802.3ad
+        mii-monitor-interval: 100
+    bond-compute:               # Compute LACP Bond
+      interfaces: [ens3f0, ens3f1]
+      parameters:
+        mode: 802.3ad
+        mii-monitor-interval: 100
+  ovs-bridges:
+    br-mgmt:                    # Local Host Management Bridge
+      interfaces: [bond-mgmt]
+      addresses: [10.10.10.25/24]
+      routes:
+        - to: default
+          via: 10.10.10.1
+    br-compute:                 # VM Compute Core Traffic Bridge
+      interfaces: [bond-compute] # Leave unconfigured with IPs on Host OS
+------------------------------------------------------------------------------------------------------------------------
+
+2. COMPUTE LAYER INTERACTION (virsh / KVM)
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+KVM Compute Provision  sudo virsh net-define <network_xml_file>        Define an isolated or bridged KVM network
+KVM Compute Provision  sudo virsh net-start <network_name>             Power on a defined virtualization network domain
+KVM Compute Provision  sudo virsh net-autostart <network_name>         Mark network domain to start instantly on node boot
+
+Network Introspection  sudo virsh net-list --all                       List every guest compute network known to hypervisor
+Network Introspection  sudo virsh net-info <network_name>              Output structural metadata of specified bridge domain
+Network Introspection  sudo virsh net-dumpxml <network_name>           Export running KVM network infrastructure setup to text
+Network Introspection  sudo virsh domiflist <vm_name>                  Map specific VM guest NICs back to host bridge targets
+
+3. INTERACTION & TROUBLESHOOTING
+------------------------------------------------------------------------------------------------------------------------
+OVS Infrastructure     sudo ovs-vsctl show                             Display running OVS hardware bridges & port layout
+OVS Infrastructure     sudo ovs-vsctl list-br                          List text summary of all virtual switch bridges
+OVS Infrastructure     sudo ovs-vsctl list-ports <bridge_name>         Show active internal interfaces bound to specific bridge
+
+Data Path Tracking     sudo tcpdump -i br-mgmt -n icmp                 Isolate host management gateway dropouts/ping tests
+Data Path Tracking     sudo tcpdump -i br-compute -e                   Listen for tagged 802.1Q trunk traffic on compute
+Data Path Tracking     sudo ovs-appctl fdb/show <bridge_name>          Dump OVS physical MAC learning tables per bridge interface
+Data Path Tracking     sudo ip link set dev <interface> up             Forcibly wake a dropped network port interface layer
+========================================================================================================================
