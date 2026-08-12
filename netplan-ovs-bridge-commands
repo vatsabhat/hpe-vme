@@ -1,0 +1,53 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - NETPLAN OVS-BRIDGE WITH BONDING TEMPLATE
+========================================================================================================================
+
+1. CONFIGURATION TEMPLATE (Save as /etc/netplan/01-netcfg.yaml)
+------------------------------------------------------------------------------------------------------------------------
+network:
+  version: 2
+  renderer: OpenvSwitch
+  ethernets:
+    eth0:
+      dhcp4: no
+      dhcp6: no
+    eth1:
+      dhcp4: no
+      dhcp6: no
+  bonds:
+    bond0:
+      interfaces: [eth0, eth1]
+      parameters:
+        mode: 802.3ad
+        lacp-rate: fast
+        mii-monitor-interval: 100
+  ovs-bridges:
+    br-ex:
+      interfaces: [bond0]
+      addresses:
+        - 192.168.10.50/24
+      routes:
+        - to: default
+          via: 192.168.10.1
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
+------------------------------------------------------------------------------------------------------------------------
+
+2. OPERATIONAL & TROUBLESHOOTING COMMANDS
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Netplan Management     sudo netplan try                                Safely test configuration with auto-rollback prompt
+Netplan Management     sudo netplan apply                              Apply changes immediately (wills drop ssh if wrong)
+Netplan Management     sudo netplan generate                           Generate backend configuration without applying
+
+OVS Verification       sudo ovs-vsctl show                             Display OVS bridge architecture and interface state
+OVS Verification       sudo ovs-appctl bond/show bond0                 Check LACP negotiation status and partner info
+OVS Verification       sudo ovs-vsctl list interface                   Dump properties and errors of all virtual interfaces
+
+Kernel & Link Checks   cat /proc/net/bonding/bond0                     View driver-level bonding status (if kernel managed)
+Kernel & Link Checks   ip link show dev br-ex                          Verify the bridge link state and MTU size
+Kernel & Link Checks   sudo tcpdump -i br-ex -n                        Capture live traffic passing through the OVS bridge
+------------------------------------------------------------------------------------------------------------------------
