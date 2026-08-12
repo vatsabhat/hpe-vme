@@ -1,0 +1,28 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - NODE ERROR IDENTIFICATION (JOURNALCTL & MORPHEUS-NODE-CTL)
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Node Health Summary    sudo morpheus-node-ctl status                   View state of local microservices on this specific node
+Node Health Summary    sudo morpheus-node-ctl summary                  Print resource layout, cluster joins, and basic uptime
+Node Health Summary    sudo morpheus-node-ctl check                    Execute built-in self-tests for local agent integrity
+
+Service Control        sudo morpheus-node-ctl restart                  Hard restart the local node orchestrator & all services
+Service Control        sudo morpheus-node-ctl stop                     Gracefully stop services on this node for maintenance
+Service Control        sudo morpheus-node-ctl start                    Re-enable all services on a stopped target node
+Service Control        sudo morpheus-node-ctl reconfigure              Rebuild local configuration paths and config templates
+
+Journalctl Filtering   sudo journalctl -u hpe-vm-agent --no-pager      View boot-to-now log files for the primary VME host agent
+Journalctl Filtering   sudo journalctl -u morpheus-node-ctl --no-pager Read systemd logging for the node controller engine
+Journalctl Filtering   sudo journalctl -k -p 3 --no-pager              Show high-priority Kernel errors (hardware/crash/oom)
+Journalctl Filtering   sudo journalctl --since "1 hour ago" -p 4       View all system Warnings and Errors in the last hour
+
+Live Target Errors     sudo journalctl -u hpe-vm-agent -f              Stream live engine communication and RPC API loops
+Live Target Errors     sudo morpheus-node-ctl tail                     Simultaneously stream all VME subservice text logs
+Live Target Errors     sudo morpheus-node-ctl tail app                 Isolate log streaming down to just the local manager app
+
+Error Diagnostics      sudo journalctl --grep="failed|error|critical"  Search global system log logs for critical keywords
+Error Diagnostics      sudo journalctl -u pacemaker -b -0              Check pacemaker logs specifically for the current boot
+Error Diagnostics      sudo journalctl _PID=<PID_Number>               Trace logs tied to a specific crashed service process ID
+------------------------------------------------------------------------------------------------------------------------
