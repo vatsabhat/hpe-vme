@@ -1,0 +1,39 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - ADVANCED TROUBLESHOOTING COMMANDS
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Virtualization & Dom   sudo virsh list --all                           List all local virtual machines and states
+Virtualization & Dom   sudo virsh dominfo <domain>                     Show detailed configuration & resource info for VM
+Virtualization & Dom   sudo virsh domstate <domain>                    Check current operational state of specific VM
+Virtualization & Dom   sudo virsh start <domain>                       Power on a stopped virtual machine
+Virtualization & Dom   sudo virsh shutdown <domain>                    Gracefully shut down a virtual machine
+Virtualization & Dom   sudo virsh destroy <domain>                     Forcefully power off a hung virtual machine
+Virtualization & Dom   sudo virsh console <domain>                     Open direct serial text console to a guest VM
+Virtualization & Dom   sudo virsh dumpxml <domain> > vm.xml            Export VM configuration to an XML file backup
+Virtualization & Dom   ps aux | grep -i qemu                           Identify running QEMU processes and PID details
+Virtualization & Dom   sudo virsh domblklist <domain>                  List all virtual disks attached to the VM
+
+Service Control        sudo morpheus-ctl status                        Check status of all VME appliance microservices
+Service Control        sudo morpheus-ctl stop                         Stop all core management application services
+Service Control        sudo morpheus-ctl start                        Start all core management application services
+Service Control        sudo morpheus-ctl restart                       Full restart of all VME management services
+Service Control        sudo morpheus-ctl restart morpheus-ui           Restart only the web user interface service
+Service Control        sudo morpheus-ctl reconfigure                  Reapply settings and rebuild configuration files
+Service Control        sudo morpheus-ctl tail                          Tail live logs for all appliance services
+Service Control        sudo morpheus-ctl tail morpheus-ui              Stream live web UI startup and error logs
+Service Control        sudo morpheus-ctl tail elasticsearch            Monitor search database health and index sync logs
+Service Control        sudo morpheus-ctl tail mysql                    View real-time management database logs
+
+Network & Netplan      ip a                                            Display all network interfaces and assigned IPs
+Network & Netplan      ip route                                        Show the active kernel routing table
+Network & Netplan      sudo netplan try                                Test a new netplan config with auto-rollback
+Network & Netplan      sudo netplan apply                              Commit and apply network configurations instantly
+Network & Netplan      cat /etc/netplan/*.yaml                         View current system network configuration files
+Network & Netplan      sudo virsh net-list --all                       List all hypervisor-managed virtual networks
+Network & Netplan      sudo virsh net-info <network>                   Show properties of a specific virtual network
+Network & Netplan      sudo virsh net-dhcp-leases <network>            List active DHCP IP assignments for guest VMs
+Network & Netplan      bridge link show                                Display network bridge configurations and ports
+Network & Netplan      sudo tcpdump -i <interface> icmp                Capture live ping traffic to debug interface drops
+------------------------------------------------------------------------------------------------------------------------
