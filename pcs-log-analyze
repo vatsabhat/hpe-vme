@@ -1,0 +1,28 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - PCS CLUSTER TROUBLESHOOTING & LOG ANALYSIS
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+PCS Health Check       sudo pcs status --full                          Absolute overview of nodes, resources, & constraints
+PCS Health Check       sudo pcs property show                          Display active global cluster attributes (e.g. stonith)
+PCS Health Check       sudo pcs constraint show                        List all resource location, colocation, and order rules
+PCS Health Check       sudo pcs cluster config show                    Verify active corosync node topologies & ring IDs
+
+Node Remediation       sudo pcs cluster node delete <node_name>        Purge a stale/removed host entry from the configuration
+Node Remediation       sudo pcs node clear <node_name>                 Clear fence/failure memory barriers on a specific node
+Node Remediation       sudo pcs resource cleanup                       Global reset of resource history to clear error flags
+Node Remediation       sudo pcs cluster auth                           Force node re-authentication across the private cluster
+Node Remediation       sudo pcs cluster sync                           Push the working cluster layout definitions to all nodes
+
+Live Log Tailing       tail -f /var/log/pacemaker/pacemaker.log        Monitor live DC election transitions and fence execution
+Live Log Tailing       tail -f /var/log/corosync/corosync.log          Stream low-level heartbeat rings and node drops
+Live Log Tailing       tail -f /var/log/messages | grep -E "pcs|gfs2"   Filter core OS logs for sudden cluster dropouts
+Live Log Tailing       tail -f /var/log/morpheus/morpheus-ui/current   Monitor VME Manager sync and cluster heartbeat loops
+
+Log Error Searching    grep -i "error" /var/log/pacemaker/pacemaker.log Filter pacemaker logs for explicit state failures
+Log Error Searching    grep -i "fenc" /var/log/pacemaker/pacemaker.log  Search cluster history for triggered STONITH actions
+Log Error Searching    grep -i "totem" /var/log/corosync/corosync.log   Check for token loss timeouts or heartbeat failures
+Log Error Searching    journalctl -u corosync --no-pager -n 100         Review the last 100 systemd log lines for Corosync
+Log Error Searching    journalctl -u pacemaker --no-pager -n 100        Review the last 100 systemd log lines for Pacemaker
+------------------------------------------------------------------------------------------------------------------------
