@@ -1,0 +1,33 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - MULTI-NODE CLUSTER TROUBLESHOOTING COMMANDS
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Cluster Health         sudo pcs status                                 Check overall cluster, nodes, and resource status
+Cluster Health         sudo crm_mon -1                                 Get a quick single-shot summary of active nodes
+Cluster Health         sudo pcs status --full                          View absolute details including hidden attributes
+Cluster Health         sudo corosync-cmapctl | grep members            Verify cluster members acknowledged by Corosync
+Cluster Health         sudo systemctl status corosync                  Check underlying cluster sync heartbeat service
+Cluster Health         sudo systemctl status pacemaker                 Check the cluster orchestrator service health
+
+Node Management        sudo pcs node standby <node_name>               Place a specific node into maintenance standby
+Node Management        sudo pcs node unstandby <node_name>             Bring a node back online to host active workloads
+Node Management        sudo pcs cluster stop --all                     Stop the cluster manager services on all nodes
+Node Management        sudo pcs cluster start --all                    Start the cluster manager services on all nodes
+Node Management        sudo pcs cluster enable --all                   Enable auto-start on boot across all cluster nodes
+Node Management        sudo pcs cluster disable --all                  Disable auto-start on boot across all cluster nodes
+
+Resource & Stonith     sudo pcs resource status                        Display current placement/state of cluster resources
+Resource & Stonith     sudo pcs resource cleanup <resource_id>         Clear error flags and force a retry on a resource
+Resource & Stonith     sudo pcs stonith history                        Review historical fencing / STONITH events 
+Resource & Stonith     sudo pcs stonith cleanup <fencing_id>           Reset a fencing tracking block after an event
+Resource & Stonith     sudo tail -f /var/log/pacemaker/pacemaker.log   Stream live node election and resource fence events
+
+Cluster Storage        sudo ceph status                                Review primary health status of Ceph storage pool
+Cluster Storage        sudo ceph osd tree                              Map physical drive topologies and failure domains
+Cluster Storage        sudo ceph health detail                         Expose hidden storage warnings or degraded PG lists
+Cluster Storage        sudo dlm_tool ls                                List active Distributed Lock Manager lockspaces
+Cluster Storage        sudo dlm_tool status                            Verify current DLM operating parameters for GFS2
+Cluster Storage        mount | grep gfs2                               Verify active local mount points for GFS2 volumes
+------------------------------------------------------------------------------------------------------------------------
