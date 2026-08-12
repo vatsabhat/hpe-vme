@@ -1,0 +1,41 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 9.0.0 - CRITICAL ROOT-CAUSE ANALYSIS & STORAGE RECOVERY
+========================================================================================================================
+
+1. CRITICAL DIAGNOSTIC AND RECOVERY COMMANDS
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+V9 Metadata Check      sudo hvm-cli cluster status --detail            Expose layout version discrepancies (Layout 1.2 vs 1.3)
+V9 Metadata Check      sudo morphd-cli datastore list                  Query active HP Clustered Datastore states & lock IDs
+V9 Metadata Check      cat /etc/hvm/agent.conf                         Verify node UUID matches manager cluster registrations
+
+GFS2 Lock Recovery     sudo dlm_tool ls                                List active Distributed Lock Manager lockspaces for GFS2
+GFS2 Lock Recovery     sudo dlm_tool deadlocks <lockspace_name>        Identify which node holding a stale storage token
+GFS2 Lock Recovery     sudo gfs2_tool journals /mnt/<gfs2_mount>       List volume journals to see if free slots exist for node
+
+Storage Rescan Fix     sudo blockdev --getsize64 /dev/mapper/<disk>    Verify OS layer sees the post-expansion block capacity
+Storage Rescan Fix     sudo gfs2_edit -p sb /dev/mapper/<disk>         Inspect GFS2 superblock block-size and layout properties
+Storage Rescan Fix     sudo journalctl -k | grep -E "gfs2|dlm"         Monitor kernel ring for unrecovered storage file locks
+
+------------------------------------------------------------------------------------------------------------------------
+2. ROOT-CAUSE MATRIX (UPGRADE & STORAGE OUTAGES)
+------------------------------------------------------------------------------------------------------------------------
+PITFALL SIGNATURE                       ROOT CAUSE                                     REMEDIATION STEPS
+------------------------------------------------------------------------------------------------------------------------
+Host stuck in "Fenced" state in UI      The host upgraded to Ubuntu 24.04 but the      1. Remount tmp: 'mount -o remount,exec /tmp'
+but guest VMs are running perfectly.    'hpe-vm-agent' failed to install because       2. Run: 'sudo morpheus-node-ctl restart'
+                                        the /tmp directory blocks script execution.    3. Push 'Upgrade Agent' from Manager UI.
+
+'gfs2_grow' command hangs or throws     The underlying storage multi-path map was      1. Run 'sudo multipathd resize map <disk>'
+an execution timeout error.             not resized on *all* nodes simultaneously      2. Run 'sudo dlm_tool ls' to clear locks
+                                        before attempting the file system expansion.   3. Execute 'sudo gfs2_grow /mnt/<path>'
+
+VM migration fails or power-on fails    The cluster layout was upgraded to v1.3 but    1. Edit storage properties in VME UI.
+with "NVRAM path missing" errors.       the GFS2 datastore does not have the option    2. Check "Supports VM Secure Metadata".
+                                        "Supports VM Secure Metadata" enabled.         3. Check sync via: 'ls -l /var/lib/libvirt/'
+
+All storage operations hang; terminal   A split-brain or network dropout caused a node 1. Check network heartbeat interfaces.
+locks up entirely when typing 'df -h'.  to drop out of the DLM lockspace, leaving      2. Safely withdraw: 'gfs2_tool withdraw'
+                                        orphaned metadata locks across the cluster.    3. Run 'sudo dlm_tool leave <lockspace>'
+========================================================================================================================
