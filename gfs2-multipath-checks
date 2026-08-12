@@ -1,0 +1,25 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 9.0.0 - BYPASS HANGS: IDENTIFYING GFS2 MOUNT & MULTIPATH MAPS
+========================================================================================================================
+
+1. BYPASS SYSTEM HANGS TO FIND THE GFS2 MOUNT PATH & DEVICE
+------------------------------------------------------------------------------------------------------------------------
+COMMAND                                         DESCRIPTION
+cat /proc/mounts | grep gfs2                   Read kernel mount table directly (Will NOT hang like 'df -h')
+cat /proc/cluster/services                      Query active DLM kernel layers to view registered storage names
+ls -la /sys/fs/gfs2/                            List kernel runtime entries for all active GFS2 filesystems
+
+2. IDENTIFY THE EXACT MULTIPATH MAP NAME & BACKEND SLAVES
+------------------------------------------------------------------------------------------------------------------------
+COMMAND                                         DESCRIPTION
+sudo multipath -ll                              Map all redundant paths, disk UUIDs, and active map names
+ls -la /dev/mapper/                             List all active logical device mapper paths on the system
+dmsetup ls --target multipath                   Query device-mapper framework directly for multipath targets
+lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINT | grep dm- Trace logical device-mapper tracking IDs back to physical drives
+
+3. VERIFY BLOCK SIZE GEOMETRY SYNCHRONIZATION
+------------------------------------------------------------------------------------------------------------------------
+COMMAND                                         DESCRIPTION
+sudo blockdev --getsize64 /dev/mapper/<map_id>  Get the raw byte size of the multipath device (Non-blocking)
+sudo multipathd show maps status                Check the runtime sync status of all device-mapper maps
+========================================================================================================================
