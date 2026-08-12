@@ -1,0 +1,35 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) - ALL-NODE NFS DATASTORE TROUBLESHOOTING
+========================================================================================================================
+
+1. ALL-NODE PARALLEL DIAGNOSTICS (Run using cluster-shell or on each node individually)
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Mount Verification     mount -t nfs4                                   List all active NFSv4 mount attachments on the node
+Mount Verification     cat /proc/mounts | grep -i nfs                  Bypass hanging 'df -h' to read kernel-level mounts
+Mount Verification     sudo nfsstat -m                                 Display active mount options, flags, and variations
+
+Network & Ports        nc -zv <NFS_Server_IP> 2049                     Verify direct TCP communication to the NFS daemon
+Network & Ports        rpcinfo -p <NFS_Server_IP>                     Query remote RPC portmapper (checks ports 111, 20048)
+Network & Ports        showmount -e <NFS_Server_IP>                    Query the storage target for exposed export subpaths
+
+Performance & Latency  sudo nfsstat -rc                                Check RPC client execution timeout/retry counters
+Performance & Latency  sudo tcpdump -i any port 2049 -n                Sniff active NFS storage transactions and retransmissions
+
+------------------------------------------------------------------------------------------------------------------------
+2. EMERGENCY PROCEDURES FOR STUCK/FROZEN NFS DATASTORES
+------------------------------------------------------------------------------------------------------------------------
+ACTION                 COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Lazy Unmount           sudo umount -l /mnt/<nfs_mount_point>           Instantly detach a hanging NFS path from directory tree
+Force Unmount          sudo umount -f /mnt/<nfs_mount_point>           Forcefully drop mount point (May hang if IO is locked)
+Remount Datastore      sudo mount -a                                   Force OS to re-read fstab profiles and remount paths
+
+------------------------------------------------------------------------------------------------------------------------
+3. KVM / LIBVIRT LAYER SYNCHRONIZATION
+------------------------------------------------------------------------------------------------------------------------
+KVM Pool Check         sudo virsh pool-list --all                      Verify status of KVM-managed storage definitions
+KVM Pool Check         sudo virsh pool-info <nfs_pool_name>            Display overall capacity and allocation state of pool
+KVM Pool Check         sudo virsh pool-refresh <nfs_pool_name>         Force libvirt to scan filesystem for new QCOW2/ISOs
+========================================================================================================================
