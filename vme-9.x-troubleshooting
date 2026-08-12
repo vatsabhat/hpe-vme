@@ -1,0 +1,25 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 9.0.0 - MANAGER & HVM NODE TROUBLESHOOTING
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+VME Manager 9.0 Health sudo morpheus-ctl status                        Verify all core v9 manager appliance subsystems
+VME Manager 9.0 Health sudo morpheus-ctl tail elasticsearch            Check audit logs, tracking database, & index health
+VME Manager 9.0 Health sudo morpheus-ctl tail morphd                   Stream active web control & agent api payload logs
+VME Manager 9.0 Health cat /var/log/morpheus/morpheus-ui/current       Review primary web portal exceptions and login timeouts
+
+v9 Node Agent Logs     sudo journalctl -u hpe-vm-agent -f              Stream live HA election logs and task processing
+v9 Node Agent Logs     sudo journalctl -u morphd --no-pager -n 100     Review the last 100 lines of the engine orchestrator
+v9 Node Agent Logs     tail -f /var/log/hvm/network-plugin.log         Monitor new decoupled v9 network virtualization attachments
+v9 Node Agent Logs     sudo journalctl --grep="audit" -u morphd        Trace user actions & identity map inputs (libvirt/virsh)
+
+HA & Cluster State     sudo hvm-cli cluster status                     Query v9 internal native cluster sync state
+HA & Cluster State     sudo hvm-cli host list                          Show operational & quorum state of all cluster members
+HA & Cluster State     sudo hvm-cli host health <node_name>            Run a non-disruptive agent check on a specific host
+HA & Cluster State     sudo pcs status                                 View legacy fencing/storage layers (if co-existing)
+
+Secure Boot & Metadata sudo virsh dumpxml <domain> | grep -i secure    Verify guest secure boot flags match local storage definitions
+Secure Boot & Metadata ls -la /var/lib/libvirt/qemu/nvram/              Check for valid host-side path mapping of guest NVRAM files
+Secure Boot & Metadata sudo tail -f /var/log/libvirt/qvirtd.log        Debug validation drops for vTPM/SecureBoot operations
+------------------------------------------------------------------------------------------------------------------------
