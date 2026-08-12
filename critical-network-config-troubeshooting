@@ -1,0 +1,49 @@
+
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - CLI NETWORKING: CREATION, MAPPING & DIAGNOSTICS
+========================================================================================================================
+
+1. STEP-BY-STEP COMPUTE NETWORK CREATION VIA CLI (KVM / OVS Layer)
+------------------------------------------------------------------------------------------------------------------------
+STEP 1: Create a temporary KVM Network XML Definition file (e.g., /tmp/compute-vlan100.xml) using Notepad layout:
+        <network>
+          <name>compute-vlan100</name>
+          <forward mode='bridge'/>
+          <bridge name='br-compute'/>
+          <vlan trunk='yes'>
+            <tag id='100'/>
+          </vlan>
+          <virtualport type='openvswitch'/>
+        </network>
+
+STEP 2: Import, initialize, and lock the network definition into the hypervisor:
+        sudo virsh net-define /tmp/compute-vlan100.xml
+        sudo virsh net-start compute-vlan100
+        sudo virsh net-autostart compute-vlan100
+
+------------------------------------------------------------------------------------------------------------------------
+2. MANAGEMENT & COMPUTE CLI TROUBLESHOOTING ACTIONS
+------------------------------------------------------------------------------------------------------------------------
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+OVS Bridge Creation    sudo ovs-vsctl add-br br-compute                Manually force-create a secondary OVS bridge via CLI
+OVS Bridge Creation    sudo ovs-vsctl add-bond br-compute bond-c ens3f0 ens3f1  Directly provision an OVS-managed trunk bond
+OVS Bridge Creation    sudo ovs-vsctl del-br br-compute                Destroy an obsolete or misconfigured OVS bridge
+
+OVS Port Profiling     sudo ovs-vsctl show                             Verify full virtual switch map and active bonds
+OVS Port Profiling     sudo ovs-vsctl list-ports br-compute            List all physical/virtual ports bound to compute
+OVS Port Profiling     sudo ovs-vsctl port-to-br <port_name>           Identify which bridge a specific interface belongs to
+OVS Port Profiling     sudo ovs-ofctl dump-flows br-compute            Dump low-level OpenFlow rules driving the switch data
+
+KVM Net Management     sudo virsh net-list --all                       Verify status of all CLI-defined guest networks
+KVM Net Management     sudo virsh net-destroy <net_name>               Forcefully stop/deactivate a virtual network domain
+KVM Net Management     sudo virsh net-undefine <net_name>              Completely delete a network domain definition
+KVM Net Management     sudo virsh net-edit <net_name>                  Open active network XML config file in default editor
+
+Fabric Verification    sudo ovs-appctl bond/show bond-compute          Check physical LACP/Bond hashing and link alignments
+Fabric Verification    sudo ip link set dev br-compute up              Force state of compute bridge to UP at kernel level
+Fabric Verification    sudo tcpdump -i br-compute -n -e vlan 100       Sniff traffic specifically tagged on VLAN 100
+Fabric Verification    sudo ip route show table all                    Print comprehensive system routing profiles
+========================================================================================================================
+
+sudo ovs-appctl fdb/flush br-compute         Flushing Stale OVS MACs
