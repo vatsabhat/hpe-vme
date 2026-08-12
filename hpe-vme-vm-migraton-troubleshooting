@@ -1,0 +1,27 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - VM MIGRATION TROUBLESHOOTING & RECOVERY
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+Migration Monitoring   sudo virsh jobinfo <domain>                     Check progress, speed, & remaining memory of live migration
+Migration Monitoring   sudo virsh list --all                           Run on source and target to verify where the VM is stuck
+Migration Monitoring   sudo pcs resource status                        Verify if Pacemaker recognizes the VM resource relocation
+Migration Monitoring   sudo virsh domjobabort <domain>                 Forcefully cancel a hung or frozen live migration job
+
+Manual Relocation      sudo virsh migrate --live <domain> qemu+ssh://<target_node_ip>/system
+                                                                       Force a manual libvirt live migration via SSH tunnel
+Manual Relocation      sudo pcs resource move <vm_resource_id> <node>   Gracefully instruct Pacemaker to migrate VM to specific node
+Manual Relocation      sudo pcs resource clear <vm_resource_id>        Remove the explicit location constraint created by 'move'
+
+Network & Pre-flight   ping -s 8972 <target_migration_ip>               Test Jumbo Frames (MTU 9000) stability between cluster nodes
+Network & Pre-flight   nc -zv <target_node_ip> 49152-49215             Scan if QEMU dynamic live migration port range is open
+Network & Pre-flight   sudo virsh capabilities | grep exact             Verify CPU model flags match exactly between source & target
+
+Migration Log Analysis tail -f /var/log/libvirt/libvirtd.log          Monitor underlying virtualization API migration errors
+Migration Log Analysis tail -f /var/log/libvirt/qemu/<domain>.log      Stream VM-specific engine logs (identifies QEMU drops)
+Migration Log Analysis grep -i "migration" /var/log/pacemaker/pacemaker.log
+                                                                       Search cluster manager for failed transition steps
+Migration Log Analysis grep -iE "timeout|abort" /var/log/libvirt/libvirtd.log
+                                                                       Isolate memory dirty-rate timeouts during live sync
+------------------------------------------------------------------------------------------------------------------------
