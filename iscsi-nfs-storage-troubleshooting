@@ -1,0 +1,26 @@
+========================================================================================================================
+HPE VM ESSENTIALS (VME) 8.1.2 - ISCSI, NFS & MULTIPATH STORAGE TROUBLESHOOTING
+========================================================================================================================
+
+CATEGORY               COMMAND                                         DESCRIPTION
+------------------------------------------------------------------------------------------------------------------------
+iSCSI Connectivity     sudo iscsiadm -m discovery -t sendtargets -p <target_ip> Discover available iSCSI targets on an array
+iSCSI Connectivity     sudo iscsiadm -m node -T <iqn_target> -p <ip> -l Log in to a specific discovered iSCSI target LUN
+iSCSI Connectivity     sudo iscsiadm -m session -P 3                   Display detailed live iSCSI session parameters & states
+iSCSI Connectivity     cat /etc/iscsi/initiatorname.iscsi              View the local software initiator IQN for the host
+iSCSI Connectivity     sudo iscsiadm -m node -U all                    Log out of all active iSCSI targets immediately
+
+Multipath Management   sudo multipath -ll                              Display detailed status map of redundant storage paths
+Multipath Management   sudo multipath -v2                              Re-scan and flush underlying pathing maps
+Multipath Management   sudo systemctl status multipathd                Verify state of the device-mapper multipathing daemon
+Multipath Management   sudo multipath -F                               Flush all unused multipath device maps from the host
+
+NFS Shared Storage     showmount -e <nfs_server_ip>                    Query remote NFS server to view exposed export paths
+NFS Shared Storage     sudo mount -t nfs -o vers=4.1 <ip>:<path> <mnt> Manually test mount an NFS export via NFSv4.1 protocol
+NFS Shared Storage     nfsstat -m                                      List active NFS mount choices, flags, and variations
+ nfsstat -rc                                     Check for RPC client timeout/retry counts (indicates drops)
+
+Storage System Logs    tail -f /var/log/messages | grep -E "iscsi|iscsid" Watch live host-to-array connection drops/retries
+Storage System Logs    sudo journalctl -u multipathd --no-pager -n 50  Review recent path failures or active device path flips
+Storage System Logs    sudo dmesg -T | grep -E "sdX|timeout|abort"     Filter kernel output for SCSI disk layer drops/hangs
+------------------------------------------------------------------------------------------------------------------------
