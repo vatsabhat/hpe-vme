@@ -1,0 +1,376 @@
+
+================================================================================================================
+                 HPE MORPHEUS VM ESSENTIALS (VME) 9.1.0_2
+                    HVMCLI COMMAND REFERENCE HANDBOOK
+================================================================================================================
+
+DOCUMENT INFORMATION
+----------------------------------------------------------------------------------------------------------------
+Product              : HPE Morpheus VM Essentials
+Version              : 9.1.0_2
+Platform             : HVM / KVM
+Operating System     : HVM Host OS
+Purpose              : Host Administration, VM Management, Storage, Network and Troubleshooting
+Command Interface    : HVMCLI
+Privilege            : Root / sudo
+Document Type        : Technical Command Reference
+
+IMPORTANT:
+The command examples below consolidate the previous reference. They are not all independently
+vendor-validated. Verify every command and option against the installed HVMCLI help and the
+documentation for the exact HVM release before production execution.
+
+
+================================================================================================================
+01. BASIC CLI OPERATIONS
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Version                 sudo hvmcli version             Display CLI version                 Read-only
+General Help            sudo hvmcli help                Display available commands          Read-only
+VM Help                 sudo hvmcli vm help             Display VM command options           Read-only
+Node Help               sudo hvmcli node help           Display node commands                Read-only
+Storage Help            sudo hvmcli storage help        Display storage commands             Read-only
+Network Help            sudo hvmcli network help        Display network commands             Read-only
+Cluster Help            sudo hvmcli cluster help        Display cluster commands             Read-only
+JSON Output             sudo hvmcli node list --json    Display JSON information             Read-only
+Debug Output            sudo hvmcli node list --debug   Display diagnostic information       Read-only
+
+
+================================================================================================================
+02. VIRTUAL MACHINE MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+VM List                 sudo hvmcli vm list             List virtual machines                Read-only
+VM Details              sudo hvmcli vm list --details   Display detailed VM information     Read-only
+VM by Name              sudo hvmcli vm list --name test-vm01
+                                                        Display a specific VM                Read-only
+VM Start                sudo hvmcli vm start --name test-vm01
+                                                        Start a stopped VM                  Service change
+VM Stop                 sudo hvmcli vm stop --name test-vm01
+                                                        Stop a running VM                   Service change
+VM Force Stop           sudo hvmcli vm stop --name test-vm01 --force
+                                                        Force-stop a VM                     High risk
+VM Restart              sudo hvmcli vm restart --name test-vm01
+                                                        Restart a VM                        Service change
+VM Reboot               sudo hvmcli vm reboot --name test-vm01
+                                                        Request guest reboot                Service change
+
+OPERATIONAL VALIDATION
+----------------------------------------------------------------------------------------------------------------
+1. List VMs.
+2. Identify the target VM.
+3. Check its current power state.
+4. Perform the required operation only after workload approval.
+5. Verify the final VM state.
+
+
+================================================================================================================
+03. HVM HOST MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Node Inventory          sudo hvmcli node list           Display host information             Read-only
+Show Configuration      sudo hvmcli node show-config    Display host configuration          Read-only
+Configure DNS           sudo hvmcli node configure --dns 10.10.10.5
+                                                        Configure DNS                       Config change
+Configure NTP           sudo hvmcli node configure --ntp 10.10.10.10
+                                                        Configure NTP                       Config change
+Configure Hostname      sudo hvmcli node configure --hostname hvmhost01
+                                                        Change hostname                     Config change
+List Timezones          sudo hvmcli node list-timezones Display timezones                    Read-only
+List Locales            sudo hvmcli node list-locales   Display locales                     Read-only
+List Keymaps            sudo hvmcli node list-keymaps   Display keyboard layouts            Read-only
+Backup Help             sudo hvmcli node backup --help  Display backup options              Read-only
+Restore Help            sudo hvmcli node restore --help Display restore options              Read-only
+Node Events             sudo hvmcli node events         Display recent host events           Read-only
+Node Reboot             sudo hvmcli node reboot         Reboot HVM host                     Critical
+Node Shutdown           sudo hvmcli node shutdown       Shutdown HVM host                   Critical
+
+
+================================================================================================================
+04. NETWORK MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Interface List          sudo hvmcli interfaces list     List physical interfaces            Read-only
+Ethernet List           sudo hvmcli interfaces list --filter ethernet
+                                                        List Ethernet interfaces            Read-only
+Virtual Switch List     sudo hvmcli virtswitch list     List virtual switches               Read-only
+Network List            sudo hvmcli network list        List virtual networks               Read-only
+Virtual Switch Help     sudo hvmcli virtswitch help    Display switch operations            Read-only
+Network Help            sudo hvmcli network help       Display network operations           Read-only
+
+NETWORK VALIDATION CHECKLIST
+----------------------------------------------------------------------------------------------------------------
+1. Management NIC connectivity
+2. Compute NIC connectivity
+3. LACP configuration
+4. VLAN configuration
+5. Virtual switch configuration
+6. Host management gateway connectivity
+7. VM network connectivity
+8. DNS and NTP reachability
+
+
+================================================================================================================
+05. STORAGE MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Storage List            sudo hvmcli storage list        List storage resources              Read-only
+Storage Help            sudo hvmcli storage help        Display storage operations          Read-only
+FC Help                 sudo hvmcli storage fc help     Display FC operations               Read-only
+iSCSI Help              sudo hvmcli storage iscsi help  Display iSCSI operations            Read-only
+Multipath Help          sudo hvmcli storage multipath help
+                                                        Display multipath operations        Read-only
+Multipath Validate      sudo hvmcli storage multipath validate
+                                                        Validate multipath configuration   Verify syntax
+Storage Rescan          sudo hvmcli storage rescan      Rescan storage devices              Verify syntax
+
+HPE ALLETRA MP FC VALIDATION CHECKLIST
+----------------------------------------------------------------------------------------------------------------
+1. Verify FC HBA detection.
+2. Verify HBA WWPNs.
+3. Verify SAN switch zoning.
+4. Verify Alletra host WWPN registration.
+5. Verify LUN masking and presentation.
+6. Verify FC paths.
+7. Verify multipath devices.
+8. Verify shared datastore visibility on both HVM hosts.
+9. Verify GFS2 configuration and cluster access using the supported deployment procedure.
+
+CAUTION:
+Never remove, reinitialize or modify an in-use multipath device without confirming datastore
+dependencies and obtaining the appropriate maintenance approval.
+
+
+================================================================================================================
+06. CLUSTER MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Cluster Help            sudo hvmcli cluster help       Display cluster operations           Read-only
+Cluster Status          sudo hvmcli cluster status     Display cluster status              Verify syntax
+Cluster List            sudo hvmcli cluster list       List cluster information             Verify syntax
+Cluster Status JSON     sudo hvmcli cluster status --json
+                                                        Display cluster JSON status         Verify syntax
+Cluster Nodes           sudo hvmcli cluster nodes --list
+                                                        List cluster membership             Verify syntax
+
+CLUSTER VALIDATION CHECKLIST
+----------------------------------------------------------------------------------------------------------------
+1. Verify HVM Host 01 status.
+2. Verify HVM Host 02 status.
+3. Verify witness availability.
+4. Verify quorum.
+5. Verify cluster communication.
+6. Verify shared storage availability.
+7. Verify cluster resource health.
+
+NOTE:
+The Ubuntu witness is a separate witness system, not an HVM compute host.
+
+
+================================================================================================================
+07. HARDWARE INVENTORY
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Hardware Help           sudo hvmcli hardware help      Display hardware commands            Read-only
+CPU Inventory           sudo hvmcli hardware cpu list  Display CPU information              Verify syntax
+Memory Inventory        sudo hvmcli hardware memory list
+                                                        Display memory information          Verify syntax
+PCI Inventory           sudo hvmcli hardware pci list  Display PCI devices                  Verify syntax
+Boot Volume             sudo hvmcli hardware bootvolume list
+                                                        Display boot volume information     Verify syntax
+IPMI Information        sudo hvmcli hardware ipmi       Check IPMI command availability     Verify syntax
+
+HARDWARE VALIDATION
+----------------------------------------------------------------------------------------------------------------
+1. CPU model and generation
+2. Physical CPU sockets
+3. Logical processor count
+4. Memory capacity
+5. RAID controller status
+6. Boot disk status
+7. Network adapter detection
+8. FC HBA detection
+9. PCI device inventory
+10. iLO hardware health
+
+
+================================================================================================================
+08. SOFTWARE AND OS UPDATE MANAGEMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Software Help           sudo hvmcli software help      Display software commands            Read-only
+Software List           sudo hvmcli software list      Display installed software           Verify syntax
+Update Precheck         sudo hvmcli software update precheck
+                                                        Check update readiness              Verify syntax
+Update History          sudo hvmcli software update history
+                                                        Display update history              Read-only
+OS Update               sudo hvmcli software update os Apply OS update                     Critical
+Rollback Help           sudo hvmcli software update rollback --help
+                                                        Display rollback options            Read-only
+
+PRE-UPGRADE CHECKLIST
+----------------------------------------------------------------------------------------------------------------
+1. Verify VME version.
+2. Verify host health.
+3. Verify cluster quorum.
+4. Verify Manager backup.
+5. Verify VM workload protection.
+6. Verify shared storage.
+7. Verify supported upgrade path.
+8. Verify maintenance window.
+9. Verify rollback procedure.
+
+
+================================================================================================================
+09. TROUBLESHOOTING AND DIAGNOSTICS
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Logs Help               sudo hvmcli logs help           Display logging options              Read-only
+Health Help             sudo hvmcli health help         Display health-check options         Read-only
+Monitoring Help         sudo hvmcli top help            Display monitoring options           Read-only
+Node Events             sudo hvmcli node events         Display host events                  Read-only
+Debug Output            sudo hvmcli node list --debug   Display detailed diagnostic output  Read-only
+JSON Diagnostics       sudo hvmcli node list --json    Display structured output            Read-only
+
+TROUBLESHOOTING WORKFLOW
+----------------------------------------------------------------------------------------------------------------
+1. Check HVM host status.
+2. Check network connectivity.
+3. Check FC connectivity.
+4. Check multipath status.
+5. Check shared datastore.
+6. Check cluster membership.
+7. Check quorum.
+8. Check VM status.
+9. Collect logs and diagnostic evidence.
+10. Escalate with diagnostic information if required.
+
+
+================================================================================================================
+10. MANAGER DEPLOYMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Manager Help            sudo hvmcli deploy manager --help
+                                                        Display deployment options          Read-only
+Manager Precheck        sudo hvmcli deploy manager precheck
+                                                        Check deployment readiness          Verify syntax
+Manager Deployment      Refer to the supported deployment syntax for your build
+                                                        Deploy Manager appliance             Critical
+Manager Status          sudo hvmcli deploy manager status --json
+                                                        Check Manager deployment status     Verify syntax
+
+ILLUSTRATIVE MANAGER DEPLOYMENT PARAMETERS
+----------------------------------------------------------------------------------------------------------------
+Manager IP              : 172.16.100.100
+Netmask                 : 255.255.255.0
+Gateway                 : 172.16.100.1
+Hostname                : vme-manager
+Image                   : /mnt/iso/morpheus.qcow2
+Virtual Interface       : vs0
+Admin User              : morphadmin
+
+NOTE:
+Use the actual Manager deployment command and required arguments returned by the installed
+HVMCLI deployment help. The parameters above are examples, not a validated command template.
+
+
+================================================================================================================
+11. WORKER DEPLOYMENT
+================================================================================================================
+
+COMMAND                 EXAMPLE                         DESCRIPTION                         IMPACT
+----------------------------------------------------------------------------------------------------------------
+Worker Help             sudo hvmcli deploy worker --help
+                                                        Display worker deployment options   Read-only
+Worker Deployment       Refer to the supported deployment syntax for your build
+                                                        Deploy worker appliance             Critical
+Worker Status           sudo hvmcli deploy worker status --json
+                                                        Check worker deployment status      Verify syntax
+
+WORKER REGISTRATION CHECKLIST
+----------------------------------------------------------------------------------------------------------------
+1. Verify Manager reachability.
+2. Verify Manager URL.
+3. Verify worker network.
+4. Verify registration credentials.
+5. Verify storage connectivity.
+6. Verify worker deployment status.
+7. Verify host registration in Manager UI.
+
+
+================================================================================================================
+12. DAILY HVM HOST HEALTH CHECK
+================================================================================================================
+
+CHECK                   COMMAND                         PURPOSE
+----------------------------------------------------------------------------------------------------------------
+CLI Version             sudo hvmcli version             Confirm installed CLI version
+Host Inventory          sudo hvmcli node list           Verify host information
+Host Configuration      sudo hvmcli node show-config    Verify host configuration
+Interfaces              sudo hvmcli interfaces list     Verify NIC inventory
+Virtual Switches        sudo hvmcli virtswitch list     Verify virtual switches
+Virtual Networks        sudo hvmcli network list        Verify VM networks
+Storage Inventory       sudo hvmcli storage list        Verify storage resources
+Multipath               sudo hvmcli storage multipath validate
+                                                        Validate multipath configuration
+Cluster                 sudo hvmcli cluster help        Identify supported cluster checks
+VM Inventory            sudo hvmcli vm list             Verify VM inventory
+Host Events             sudo hvmcli node events         Review recent events
+
+
+================================================================================================================
+13. COMMAND EXECUTION RISK CLASSIFICATION
+================================================================================================================
+
+LEVEL                   DESCRIPTION                     EXAMPLE
+----------------------------------------------------------------------------------------------------------------
+LOW                     Read-only commands              Version, Help, List
+MEDIUM                  Diagnostic commands             Events, Health, Validation
+HIGH                    Configuration changes           DNS, NTP, Network changes
+CRITICAL                Service-impacting operations     Host reboot, VM force-stop, OS update
+
+PRODUCTION EXECUTION RULES
+----------------------------------------------------------------------------------------------------------------
+1. Verify command syntax before execution.
+2. Take approved backups before major changes.
+3. Confirm workload impact.
+4. Verify storage and cluster health.
+5. Maintain iLO/console access.
+6. Execute configuration changes during approved maintenance windows.
+7. Record command output and execution timestamp.
+8. Validate the environment after every change.
+
+
+================================================================================================================
+14. DOCUMENTATION AND VERSION VALIDATION
+================================================================================================================
+
+Product                 : HPE Morpheus VM Essentials
+Target Version          : 9.1.0_2
+CLI                     : HVMCLI
+Reference                : Installed HVMCLI --help output
+Reference                : HPE VME 9.1 documentation
+Validation               : Confirm exact syntax on the target host
+
+END OF DOCUMENT
+================================================================================================================
